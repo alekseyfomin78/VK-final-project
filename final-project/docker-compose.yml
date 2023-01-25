@@ -1,0 +1,93 @@
+services:
+
+  mysql:
+    networks:
+      network_final_project: null
+    image: mysql:5.7.38
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+    volumes:
+#      - ./code/config/mysql/:/docker-entrypoint-initdb.d
+      - ./code/config/mysql/mysql-init.sql:/data/application/mysql-init.sql
+    command: --init-file /data/application/mysql-init.sql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', '-uroot', '-ppass', 'ping', '-h', '127.0.0.1']
+      interval: 2s
+      retries: 60
+
+
+  vk_mock:
+    networks:
+      network_final_project: null
+    image: vk_mock:latest
+    container_name: vk_mock
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./code/vk_mock:/tmp/code/vk_mock
+    entrypoint: /bin/bash /tmp/code/vk_mock/start_mock.sh
+
+
+  app:
+    networks:
+      network_final_project: null
+    image: myapp
+    ports:
+    - "8086:8086"
+    tty: true
+    entrypoint: /app/myapp --config=/app/app-config
+    volumes:
+      - ./code/config/myapp.conf:/app/app-config
+      - ./:/VK_Final_Project/final-project
+#    environment:
+#      - USER=root
+#      - PASSWORD=pass
+#      - HOST=mysql_hostname
+#      - PORT=3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+
+  selenoid:
+    networks:
+      network_final_project: null
+    image: aerokube/selenoid:latest
+    ports:
+      - 4444:4444
+    volumes:
+      - ./code/config:/etc/browser
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: [ "-conf", "/etc/browser/browser.json", "-container-network", "network_final_project" ]
+
+
+  selenoid-ui:
+    networks:
+      network_final_project: null
+    container_name: selenoid-ui
+    image: aerokube/selenoid-ui
+    ports:
+      - 8082:8080
+    command: [ "--selenoid-uri", "http://selenoid:4444" ]
+
+
+  tests:
+    networks:
+      network_final_project: null
+    image: vk_final_project_tests
+    tty: true
+    volumes:
+    - ./code:/tmp/code
+    - ./alluredir:/tmp/alluredir
+    entrypoint: /bin/bash /tmp/code/start_tests.sh
+    depends_on:
+      app:
+        condition: service_started
+
+
+networks:
+  network_final_project:
+    name: network_final_project

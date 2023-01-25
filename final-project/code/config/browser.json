@@ -1,0 +1,12 @@
+{
+    "chrome": {
+        "default": "99.0",
+        "versions": {
+            "99.0": {
+                "image": "selenoid/chrome:99.0",
+                "port": "4444",
+                "env" : ["LANG=ru_RU.UTF-8", "LANGUAGE=ru:en", "LC_ALL=ru_RU.UTF-8"]
+            }
+        }
+    }
+}

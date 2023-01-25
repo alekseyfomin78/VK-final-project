@@ -1,0 +1,1 @@
+python3 /tmp/code/vk_mock/flask_mock.py
