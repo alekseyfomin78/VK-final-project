@@ -9,8 +9,11 @@ from mysql.model import TestUsers
 class TestRegistrationPositive(UIBase):
     create_user_in_db = False
 
-    # БАГ. middle_name = None, хотя не должно быть None
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя с middle_name')
+    @pytest.mark.xfail(reason="В БД не найден пользователь по заданным параметрам, т.к. в БД поле middle_name = None,"
+                              "хотя при регистрации пользователя это поле заполняется.")
     def test_user_registration(self):
         self.login_page.go_to_registration_page()
 
@@ -32,6 +35,8 @@ class TestRegistrationPositive(UIBase):
         assert self.user.surname in self.main_page.find(MainPageLocators.NAME_SURNAME_LOCATOR).text
         assert len(reg_user) == 1
 
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя без middle_name')
     def test_user_registration_without_middle_name(self):
         self.login_page.go_to_registration_page()
@@ -58,6 +63,8 @@ class TestRegistrationPositive(UIBase):
 class TestRegistrationNegative(UIBase):
     create_user_in_db = False
 
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя без name')
     def test_incorrect_name(self):
         self.login_page.go_to_registration_page()
@@ -78,6 +85,8 @@ class TestRegistrationNegative(UIBase):
         assert self.driver.current_url != self.main_page.url
         assert len(user_in_db) == 0
 
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя без surname')
     def test_incorrect_surname(self):
         self.login_page.go_to_registration_page()
@@ -98,6 +107,8 @@ class TestRegistrationNegative(UIBase):
         assert self.driver.current_url != self.main_page.url
         assert len(user_in_db) == 0
 
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя без username')
     def test_incorrect_username(self):
         self.login_page.go_to_registration_page()
@@ -118,6 +129,8 @@ class TestRegistrationNegative(UIBase):
         assert self.driver.current_url != self.main_page.url
         assert len(user_in_db) == 0
 
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя без email')
     def test_incorrect_email(self):
         self.login_page.go_to_registration_page()
@@ -138,6 +151,8 @@ class TestRegistrationNegative(UIBase):
         assert self.driver.current_url != self.main_page.url
         assert len(user_in_db) == 0
 
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя без повторного ввода password')
     def test_incorrect_repeat_password(self):
         self.login_page.go_to_registration_page()
@@ -158,6 +173,8 @@ class TestRegistrationNegative(UIBase):
         assert self.driver.current_url != self.main_page.url
         assert len(user_in_db) == 0
 
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя без нажатия на checkbox подтверждения')
     def test_accept_flag_is_false(self):
         self.login_page.go_to_registration_page()
@@ -179,6 +196,8 @@ class TestRegistrationNegative(UIBase):
         assert self.driver.current_url != self.main_page.url
         assert len(user_in_db) == 0
 
+    @allure.epic('UI tests')
+    @allure.feature('Registration')
     @allure.description('Проверка регистрации пользователя, когда данный пользователь уже существует')
     def test_user_already_exists(self):
         self.builder.create_user(
@@ -213,6 +232,8 @@ class TestRegistrationNegative(UIBase):
 class TestLoginPositive(UIBase):
     create_user_in_db = True
 
+    @allure.epic('UI tests')
+    @allure.feature('Login')
     @allure.description('Проверка логина пользователя с корректными данными')
     def test_correct_credentials(self):
         self.login_page.login(username=self.user.username, password=self.user.password)
@@ -227,6 +248,8 @@ class TestLoginPositive(UIBase):
         assert 'VK ID' in self.main_page.find(MainPageLocators.VK_ID_LOCATOR).text
         assert len(authorized_user) == 1
 
+    @allure.epic('UI tests')
+    @allure.feature('Login Page')
     @allure.description('Проверка перехода со страницы Логина на страницу Регистрации')
     def test_go_to_registration_page(self):
         reg_page = self.login_page.go_to_registration_page()
@@ -236,11 +259,15 @@ class TestLoginPositive(UIBase):
 class TestLoginNegative(UIBase):
     create_user_in_db = False
 
+    @allure.epic('UI tests')
+    @allure.feature('Login')
     @allure.description('Проверка логина пользователя, когда этот пользователь не зарегистрирован')
     def test_user_not_created(self):
         with pytest.raises(ErrorLoginException):
             self.login_page.login(username=self.user.username, password=self.user.password)
 
+    @allure.epic('UI tests')
+    @allure.feature('Login')
     @allure.description('Проверка логина пользователя с несовпадающим username')
     def test_incorrect_username(self):
         self.builder.create_user(
@@ -258,6 +285,8 @@ class TestLoginNegative(UIBase):
 
         assert len(unauthorized_user) == 1
 
+    @allure.epic('UI tests')
+    @allure.feature('Login')
     @allure.description('Проверка логина пользователя с несовпадающим password')
     def test_incorrect_password(self):
         self.builder.create_user(
@@ -279,6 +308,8 @@ class TestLoginNegative(UIBase):
 class TestMainPage(UIBase):
     create_user_in_db = True
 
+    @allure.epic('UI tests')
+    @allure.feature('Logout')
     @allure.description('Проверка выхода пользователя из приложения')
     def test_logout(self):
         self.login_page.login(username=self.user.username, password=self.user.password)
@@ -295,6 +326,8 @@ class TestMainPage(UIBase):
         assert self.driver.current_url != self.main_page.url
         assert len(unauthorized_user) == 1
 
+    @allure.epic('UI tests')
+    @allure.feature('Main Page')
     @allure.description('Проверка перехода с Главной страницы по ссылкам')
     @pytest.mark.parametrize("link, expected_url", [
         (MainPageLocators.WHAT_IS_AN_API_LOCATOR,
@@ -311,6 +344,8 @@ class TestMainPage(UIBase):
 
         assert self.driver.current_url == expected_url
 
+    @allure.epic('UI tests')
+    @allure.feature('Main Page')
     @allure.description('Проверка перехода по ссылкам в навигационной панели')
     @pytest.mark.parametrize("name, link, expected_url", [
         (MainPageLocators.PYTHON_LOCATOR,
